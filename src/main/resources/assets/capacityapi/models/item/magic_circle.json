@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+		"layer0": "capacityapi:items/circle",
+		"layer1": "capacityapi:items/circle_overlay"
+    }
+}

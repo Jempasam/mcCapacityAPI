@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "capacityapi:items/soup",
+		"layer1": "capacityapi:items/soup_overlay"
+    }
+}

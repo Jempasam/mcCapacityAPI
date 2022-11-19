@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "capacityapi:items/magic_potion",
+		"layer1": "capacityapi:items/magic_potion_overlay"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+		"layer0": "capacityapi:items/apple_overlay",
+		"layer1": "capacityapi:items/apple"
+    }
+}

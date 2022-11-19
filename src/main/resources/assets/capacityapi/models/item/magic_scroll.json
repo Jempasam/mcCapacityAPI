@@ -1,0 +1,7 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "capacityapi:items/magic_scroll",
+		"layer1": "capacityapi:items/magic_scroll_overlay"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "parent": "item/handheld",
+    "textures": {
+        "layer0": "capacityapi:items/magic_wand",
+		"layer1": "capacityapi:items/magic_wand_overlay"
+    }
+}

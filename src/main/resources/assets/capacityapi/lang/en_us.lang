@@ -1,0 +1,49 @@
+item.mana_powder.name=Mana Powder
+
+item.magic_wand.name=%2$s Wand of %s
+item.magic_wand.broken.name=Broken Wand
+
+item.magic_scroll.name=%2$s Scroll of %s
+item.magic_scroll.broken.name=Torn Scroll
+
+item.magic_potion.name=%s %2$s Potion
+item.magic_potion.broken.name=Weird Potion
+
+item.magic_soup.name=%s Soup in %2$s Bowl
+item.magic_soup.broken.name=Bad Soup
+
+item.magic_vaccin.name=%2$s Syringe of %s
+item.magic_vaccin.broken.name=Sida Syringe
+
+item.magic_pill.name=%2$s Pill of %s
+item.magic_pill.broken.name=Placebo Pill
+
+item.magic_ball.name=%2$s Incrusted %s Magic Ball
+item.magic_ball.broken.name=Dust Ball
+
+item.magic_circle.name=%2$s Incrusted %s Magic Circle
+item.magic_circle.broken.name=Ash Circle
+
+item.magic_sphere.name=%2$s Incrusted %s Magic Sphere
+item.magic_sphere.broken.name=Burned Sphere
+
+item.magic_bone.name=%2$s Bone of %s
+item.magic_bone.broken.name=Old Rags and Bones
+
+item.magic_powder.name=%s Powder
+item.magic_powder.broken.name=Dirty Dust
+
+item.material_ingot.name=%s Scrap
+item.material_ingot.broken.name=Old Scrap
+
+item.magic_fruit.name=%2$s Fruit of %s
+item.magic_fruit.broken.name=Rotten Fruit
+
+item.magic_berry.name=Berry of %s
+item.magic_berry.broken.name=Rotten Berry
+
+itemGroup.capacity_spell=CapacitySpell
+itemGroup.capacity_potion=CapacityPotion
+itemGroup.capacity_tools=CapacityTools
+itemGroup.capacity_capacity=CapacityCap
+itemGroup.capacity_materials=CapacityMat
