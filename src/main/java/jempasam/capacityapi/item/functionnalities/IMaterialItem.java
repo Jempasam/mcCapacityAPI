@@ -32,7 +32,7 @@ public interface IMaterialItem extends IItemColor,ICommonItem{
 		if(m==null)return 0x555555;
 		else {
 			if(m.getColorCount()==1)return m.getColor(0);
-			else return m.getColor(((int)System.currentTimeMillis()+200*tintIndex)%(199*m.getColorCount())/200);
+			else return m.getColor((int)((System.currentTimeMillis()+200L*tintIndex)%(199*m.getColorCount())/200));
 		}
 	}
 	

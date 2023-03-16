@@ -5,6 +5,7 @@ import com.google.common.base.Predicates;
 import jempasam.capacityapi.capability.CAPICapabilities;
 import jempasam.capacityapi.capability.ICapacityOwner;
 import jempasam.capacityapi.capability.SimpleCapabilityProvider;
+import jempasam.capacityapi.capability.SimpleCapacityOwner;
 import jempasam.capacityapi.capacity.Capacity;
 import jempasam.capacityapi.network.CapacityNetwork;
 import jempasam.capacityapi.utils.ColorUtils;
@@ -40,7 +41,7 @@ public class ServerAlterEventHandler {
 	@SubscribeEvent
     public void attachCapabilityEntity(AttachCapabilitiesEvent<Entity> event) {
     	if(event.getObject() instanceof EntityPlayer) {
-    		event.addCapability(new ResourceLocation(MODID, "capacity"), new SimpleCapabilityProvider<>(CAPICapabilities.CAPACITY_OWNER, null));
+    		event.addCapability(new ResourceLocation(MODID, "capacity"), new SimpleCapabilityProvider<>(CAPICapabilities.CAPACITY_OWNER, new SimpleCapacityOwner(), null));
     	}
     }
     

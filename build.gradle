@@ -34,9 +34,9 @@ minecraft {
         }
     }
 }
-
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2855'
+	implementation files('D:/CompilBiblio/.Minecraft/ElectroblobsWizardry-4.3.6-MC1.12.2.jar')
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -53,7 +53,6 @@ jar {
         ])
     }
 }
-
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
 jar.finalizedBy('reobfJar') 

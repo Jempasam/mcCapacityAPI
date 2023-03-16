@@ -56,7 +56,7 @@ public class DataDeserializers {
 		config.escapeAroundChars="\"'";
 		config.escapeChars="\\";
 		config.commentChars="#";
-		FormURLEncodedDataDeserializer ret=new FormURLEncodedDataDeserializer( (i)->new TokenizerSStream(i, config), logger );
+		PathDataDeserializer ret=new PathDataDeserializer( (i)->new TokenizerSStream(i, config), logger );
 		ret.assignementToken="=";
 		ret.memberToken=".";
 		ret.separatorToken="&";

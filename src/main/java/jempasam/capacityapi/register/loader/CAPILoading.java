@@ -1,16 +1,17 @@
 package jempasam.capacityapi.register.loader;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.common.base.Predicates;
 
-import jempasam.capacityapi.CapacityAPI;
 import jempasam.capacityapi.block.factoryrecipe.IFactoryRecipe;
 import jempasam.capacityapi.capability.CAPICapabilities;
 import jempasam.capacityapi.capability.ICapacityOwner;
@@ -23,13 +24,13 @@ import jempasam.capacityapi.utils.ColorUtils;
 import jempasam.converting.SimpleValueParser;
 import jempasam.converting.ValueParser;
 import jempasam.converting.ValueParsers;
+import jempasam.data.chunk.DataChunk;
 import jempasam.data.chunk.ObjectChunk;
 import jempasam.data.deserializer.DataDeserializer;
 import jempasam.data.deserializer.DataDeserializers;
 import jempasam.data.deserializer.ModifiersDataDeserializer;
 import jempasam.data.loader.ObjectLoader;
 import jempasam.data.loader.SimpleObjectLoader;
-import jempasam.data.modifier.DataModifier;
 import jempasam.data.modifier.ExtracterDataModifier;
 import jempasam.data.modifier.InlinerDataModifier;
 import jempasam.data.modifier.placer.AdvancedDataPlacer;
@@ -40,9 +41,6 @@ import jempasam.data.serializer.JsonDataSerializer;
 import jempasam.logger.SLogger;
 import jempasam.logger.SLoggers;
 import jempasam.mcsam.data.ModFilterDataModifier;
-import jempasam.objectmanager.HashObjectManager;
-import jempasam.objectmanager.ObjectManager;
-import jempasam.objectmanager.groups.GroupObjectManager;
 import jempasam.objectmanager.groups.ObjectGroupBuilder;
 import jempasam.samstream.SamStreams;
 import net.minecraft.block.Block;
@@ -53,17 +51,22 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class CAPILoading {
 	
 	
 	
-	private GroupObjectManager<Capacity> capacities;
-	private GroupObjectManager<MagicMaterial> materials;
-	private GroupObjectManager<IFactoryRecipe> recipes;
+	private CAPIObjectManager<Capacity> capacities;
+	private CAPIObjectManager<MagicMaterial> materials;
+	private CAPIObjectManager<IFactoryRecipe> recipes;
 	private HashMap<String, Integer> colors;
+	
+	private ObjectLoader<Capacity> capacities_loader;
+	private ObjectLoader<MagicMaterial> materials_loader;
+	private ObjectLoader<IFactoryRecipe> recipes_loader;
+	private ObjectLoader<Object> executor;
+	
 	private DataDeserializer deserializer;
 	private ValueParser parser;
 	private DataSerializer serializer;
@@ -71,13 +74,18 @@ public class CAPILoading {
 	
 	
 	
-	public CAPILoading(GroupObjectManager<Capacity> capacities, GroupObjectManager<MagicMaterial> materials, GroupObjectManager<IFactoryRecipe> recipes, HashMap<String, Integer> colors) {
+	public CAPILoading(CAPIObjectManager<Capacity> capacities, CAPIObjectManager<MagicMaterial> materials, CAPIObjectManager<IFactoryRecipe> recipes, HashMap<String, Integer> colors) {
 		super();
+		// Other
+		logger=SLoggers.OUT;
+		
+		// Object Manager
 		this.capacities = capacities;
 		this.materials = materials;
 		this.recipes = recipes;
 		this.colors=colors;
-		logger=SLoggers.OUT;
+		
+		// Parser
 		parser=createParser();
 		serializer=new JsonDataSerializer();
 		ModFilterDataModifier modfilter=new ModFilterDataModifier();
@@ -85,47 +93,41 @@ public class CAPILoading {
 		PlacerDataModifier placer=new PlacerDataModifier(logger, Arrays.asList(new DataPlacer[] {new AdvancedDataPlacer(extracter.variables()::get, "%", "%")}),"(",")","|",":");
 		InlinerDataModifier inliner=new InlinerDataModifier(logger);
 		deserializer=new ModifiersDataDeserializer(DataDeserializers.createSquareIndentedBaliseDS(logger), Arrays.asList(modfilter, extracter,placer,inliner));
+		
+		// Object Loader
+		this.capacities_loader=new SimpleObjectLoader<>( logger, parser, Capacity.class, "jempasam.capacityapi.capacity.", "Capacity");
+		this.materials_loader=new SimpleObjectLoader<>( logger, parser, MagicMaterial.class, "jempasam.capacityapi.material.", "");
+		this.recipes_loader=new SimpleObjectLoader<>( logger, parser, IFactoryRecipe.class, "jempasam.capacityapi.block.factoryrecipe.", "");
+		this.executor=new SimpleObjectLoader<>(logger, parser, Object.class, "", "");
 	}
 	
 	
 	
-	public <T> void load(String filename, ObjectManager<T> manager, Class<T> clazz, String prefix, String suffix) {
+	public Optional<InputStream> open(String name){
 		try {
-    		ObjectChunk data=deserializer.loadFrom(new FileInputStream(new File(Minecraft.getMinecraft().mcDataDir.getPath(), filename+".swjib")));
-    		System.out.println(serializer.write(data));
-    		ObjectLoader<T> loader=new SimpleObjectLoader<>( logger, parser, clazz, prefix, suffix);
-			loader.load(manager, data);
+			return Optional.of(new FileInputStream(FileSystems.getDefault().getPath(Minecraft.getMinecraft().mcDataDir.getPath(),name+".swjlib").toFile()));
 		} catch (FileNotFoundException e) {
-			CapacityAPI.logger.info("No "+filename+" file finded");
+			logger.error("File \""+name+".swjlib\" not found");
+			return Optional.empty();
 		}
 	}
 	
-	public <T, G extends ObjectGroupBuilder<T>> void loadWithCategories(String filename, GroupObjectManager<T> manager, Class<T> clazz, Class<G> builderClazz, String prefix, String suffix) {
-		load(filename, manager, clazz, prefix, suffix);
-		ObjectManager<G> categoryManager=new HashObjectManager<>();
-		load(filename+"_group", categoryManager, builderClazz, "", "");
+	public Optional<DataChunk> openChunk(String name){
+		return open(name).map(i->{
+			ObjectChunk ret=deserializer.loadFrom(i);
+			logger.debug(serializer.write(ret));
+			return ret;
+		});
 	}
 	
-	public Map<ICapacityOwner, NBTBase> getBackup(){
-		HashMap<ICapacityOwner, NBTBase> datas=new HashMap<>();
-		SamStreams.create(DimensionManager.getWorlds())
-	    	.flatMap(w->SamStreams.create(w.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())))
-	    	.map(p->p.getCapability(CAPICapabilities.CAPACITY_OWNER, null))
-	    	.notNull()
-	    	.forEach(o->datas.put(o,CAPICapabilities.CAPACITY_OWNER.writeNBT(o, null)));
-		return datas;
-	}
 	
-	public void loadBackup(Map<ICapacityOwner, NBTBase> backup) {
-		backup.entrySet().stream().forEach(e->CAPICapabilities.CAPACITY_OWNER.readNBT(e.getKey(), null, e.getValue()));
-	}
+	public ObjectLoader<Capacity> capacities(){ return capacities_loader; }
 	
-	public void loadCapacities() {
-		load("capacities", capacities, Capacity.class, "jempasam.capacityapi.capacity.", "Capacity");
+	public void loadCapacities(ObjectChunk data) {
+		capacities_loader.load(capacities, data);
 		
 		// Color and name optimization
 		for(Map.Entry<String, Capacity> capacity : capacities.stream().fixed()) {
-    		System.out.println(capacity.getKey());
     		if(!capacity.getKey().startsWith("_")) {
     			String key=capacity.getKey();
     			Capacity value=capacity.getValue();
@@ -133,9 +135,10 @@ public class CAPILoading {
     			capacities.register("_o_"+key, value);
     		}
     	}
-		
-		ObjectManager<CAPIBuilders.CapacityBuilder> categoryManager=new HashObjectManager<>();
-		load("capacities_group", categoryManager, CAPIBuilders.CapacityBuilder.class, "", "");
+	}
+	
+	public void loadCapacitiesGroup(ObjectChunk data) {
+		executor.hydrate(new ObjectGroupBuilder<>(capacities), data);
 		
 		// Fetch Category Infos
 		CapacityContext context=CapacityContext.withPower(1);
@@ -152,14 +155,30 @@ public class CAPILoading {
 		}
 	}
 	
-	public void loadMaterials() {
-		loadWithCategories("materials", materials, MagicMaterial.class, CAPIBuilders.MaterialBuilder.class, "jempasam.capacityapi.material.", "" );
+	
+	public ObjectLoader<MagicMaterial> materials(){ return materials_loader; }
+	public void loadMaterials(ObjectChunk data) { materials_loader.load(materials, data); }
+	public void loadMaterialsGroup(ObjectChunk data) { executor.hydrate(new ObjectGroupBuilder<>(materials), data); }
+	
+	public ObjectLoader<IFactoryRecipe> recipes(){ return recipes_loader; }
+	public void loadRecipes(ObjectChunk data) { recipes_loader.load(recipes, data); }
+	public void loadRecipesGroup(ObjectChunk data) { executor.hydrate(new ObjectGroupBuilder<>(recipes), data); }
+	
+	
+	public Map<ICapacityOwner, NBTBase> getBackup(){
+		HashMap<ICapacityOwner, NBTBase> datas=new HashMap<>();
+		SamStreams.create(DimensionManager.getWorlds())
+	    	.flatMap(w->SamStreams.create(w.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue())))
+	    	.map(p->p.getCapability(CAPICapabilities.CAPACITY_OWNER, null))
+	    	.notNull()
+	    	.forEach(o->datas.put(o,CAPICapabilities.CAPACITY_OWNER.writeNBT(o, null)));
+		return datas;
 	}
 	
-	public void loadRecipes() {
-		loadWithCategories("recipes", recipes, IFactoryRecipe.class, CAPIBuilders.FactoryBuilder.class, "jempasam.capacityapi.block.factoryrecipe.", "" );
+	public void loadBackup(Map<ICapacityOwner, NBTBase> backup) {
+		backup.entrySet().stream().forEach(e->CAPICapabilities.CAPACITY_OWNER.readNBT(e.getKey(), null, e.getValue()));
 	}
-
+	
 	private SimpleValueParser createParser() {
 		SimpleValueParser ret=ValueParsers.createCompleteValueParser();
 		ret.add(String.class, Item.class, str->ForgeRegistries.ITEMS.getValue(new ResourceLocation(str)));

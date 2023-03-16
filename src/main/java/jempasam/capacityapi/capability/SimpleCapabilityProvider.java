@@ -15,10 +15,10 @@ public class SimpleCapabilityProvider<T> implements ICapabilitySerializable<NBTB
 	
 	
 	
-	public SimpleCapabilityProvider(Capability<T> capability, EnumFacing face) {
+	public SimpleCapabilityProvider(Capability<T> capability, T capinstance, EnumFacing face) {
 		this.capability=capability;
 		this.face=face;
-		this.instance=capability.getDefaultInstance();
+		this.instance=capinstance;
 	}
 	
 	

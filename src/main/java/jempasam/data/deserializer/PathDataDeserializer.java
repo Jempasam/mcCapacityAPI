@@ -14,7 +14,7 @@ import jempasam.samstream.SamStreams;
 import jempasam.samstream.stream.SamStream;
 import jempasam.samstream.stream.SamStream.BufferedSStream;
 
-public class FormURLEncodedDataDeserializer extends AbstractDataDeserializer{
+public class PathDataDeserializer extends AbstractDataDeserializer{
 	
 	
 	
@@ -25,7 +25,7 @@ public class FormURLEncodedDataDeserializer extends AbstractDataDeserializer{
 	
 	
 	
-	public FormURLEncodedDataDeserializer(Function<InputStream, SamStream<String>> tokenizerSupplier, SLogger logger) {
+	public PathDataDeserializer(Function<InputStream, SamStream<String>> tokenizerSupplier, SLogger logger) {
 		super(logger,tokenizerSupplier);
 	}
 	
@@ -39,7 +39,7 @@ public class FormURLEncodedDataDeserializer extends AbstractDataDeserializer{
 			
 			// Get parent and name
 			ObjectChunk parent=ret;
-			String name=input.tryNext();
+			String name="";
 			while(input.hasNext()) {
 				String token=input.tryNext();
 				if(token.equals(memberToken)) {
@@ -51,7 +51,8 @@ public class FormURLEncodedDataDeserializer extends AbstractDataDeserializer{
 						}
 						parent=newparent;
 					}
-					name=input.tryNext();
+					if(input.hasNext())name=input.tryNext();
+					else name="";
 				}
 				else if(token.equals(assignementToken)) break;
 				else if(token.equals(separatorToken)) {

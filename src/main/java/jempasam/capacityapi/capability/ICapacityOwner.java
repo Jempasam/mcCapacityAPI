@@ -6,10 +6,9 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-
 import jempasam.capacityapi.capacity.Capacity;
 import jempasam.capacityapi.material.MagicMaterial;
-import jempasam.capacityapi.register.CAPIRegistry;
+import jempasam.capacityapi.register.CAPIWorldData;
 import jempasam.capacityapi.utils.Selector;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,6 +37,8 @@ public interface ICapacityOwner{
 	
 	int getMana();
 	void setMana(int mana);
+	
+	CAPIWorldData getDatas();
 	
 	default void addMana(int mana) {
 		int max=getMaxMana();
@@ -84,7 +85,7 @@ public interface ICapacityOwner{
 		Random rand= seed==-1 ? new Random() : new Random(seed+capacities().size());
 		while(count>0) {
 			for(String category : categories()) {
-				List<Capacity> capacities=CAPIRegistry.CAPACITIES.ofCategories(category).toList();
+				List<Capacity> capacities=getDatas().CAPACITIES.ofCategories(category).toList();
 				capacities.removeAll(capacities());
 				Collections.shuffle(capacities);
 				while(rand.nextFloat()<(0.9f-(capacities().size()-categories().size()*2)*0.1f) && capacities.size()>0 && count>0) {
@@ -96,7 +97,7 @@ public interface ICapacityOwner{
 			}
 			Collections.shuffle(categories());
 			if(count>0) {
-				List<String> keys=CAPIRegistry.CAPACITIES.categoriesNames().toList();
+				List<String> keys=getDatas().CAPACITIES.categoriesNames().toList();
 				keys.removeAll(categories());
 				String ncateg=keys.get(rand.nextInt(keys.size()));
 				giveCategory(ncateg);
@@ -115,7 +116,7 @@ public interface ICapacityOwner{
 		capacities().clear();
 		categories().clear();
 		materials().clear();
-		List<MagicMaterial> materials=CAPIRegistry.MATERIALS.ofCategories("body").toList();
+		List<MagicMaterial> materials=getDatas().MATERIALS.ofCategories("body").toList();
 		materials().add(materials.get(rand.nextInt(materials.size())));
 		materials().add(materials.get(rand.nextInt(materials.size())));
 		capacitySelector().setSelected(0);
@@ -137,13 +138,13 @@ public interface ICapacityOwner{
 			object.setTag("capacities", capacities);
 			object.setTag("materials", materials);
 			object.setTag("categories", categories);
-			System.out.println(CAPIRegistry.CAPACITIES.stream().map(Map.Entry::getKey).asString());
+			System.out.println(instance.getDatas().CAPACITIES.stream().map(Map.Entry::getKey).asString());
 			for(Capacity c : instance.capacities()) {
 				System.out.println(": "+c);
-				System.out.println(": "+CAPIRegistry.CAPACITIES.idOf(c));
-				capacities.appendTag(new NBTTagString(CAPIRegistry.CAPACITIES.idOf(c)));
+				System.out.println(": "+instance.getDatas().CAPACITIES.idOf(c));
+				capacities.appendTag(new NBTTagString(instance.getDatas().CAPACITIES.idOf(c)));
 			}
-			for(MagicMaterial m : instance.materials())materials.appendTag(new NBTTagString(CAPIRegistry.MATERIALS.idOf(m)));
+			for(MagicMaterial m : instance.materials())materials.appendTag(new NBTTagString(instance.getDatas().MATERIALS.idOf(m)));
 			for(String c : instance.categories())categories.appendTag(new NBTTagString(c));
 			return object;
 		}
@@ -161,13 +162,13 @@ public interface ICapacityOwner{
 				instance.materials().clear();
 				for(NBTBase e : object.getTagList("capacities", NBT.TAG_STRING)) {
 					if(e instanceof NBTTagString) {
-						Capacity c=CAPIRegistry.CAPACITIES.get(((NBTTagString) e).getString());
+						Capacity c=instance.getDatas().CAPACITIES.get(((NBTTagString) e).getString());
 						if(c!=null)instance.capacities().add(c);
 					}
 				}
 				for(NBTBase e : object.getTagList("materials", NBT.TAG_STRING)) {
 					if(e instanceof NBTTagString) {
-						MagicMaterial m=CAPIRegistry.MATERIALS.get(((NBTTagString) e).getString());
+						MagicMaterial m=instance.getDatas().MATERIALS.get(((NBTTagString) e).getString());
 						if(m!=null)instance.materials().add(m);
 					}
 				}

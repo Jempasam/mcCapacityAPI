@@ -27,7 +27,7 @@ public interface ICapacityMaterialItem extends ICapacityItem,IMaterialItem{
 		if(tintIndex==0 ) {
 			if(m==null)return 0x666666;
 			else if(m.getColorCount()==1)return m.getColor(0);
-			else return m.getColor(((int)System.currentTimeMillis())%(199*m.getColorCount())/200);
+			else return m.getColor((int)(System.currentTimeMillis()%(199*m.getColorCount())/200));
 		}
 		else {
 			if(c==null)return 0x666666;

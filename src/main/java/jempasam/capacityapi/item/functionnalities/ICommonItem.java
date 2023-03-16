@@ -1,5 +1,6 @@
 package jempasam.capacityapi.item.functionnalities;
 
+import jempasam.capacityapi.register.CAPIWorldData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -31,5 +32,8 @@ public interface ICommonItem {
 			EntityPlayer entityplayer = (EntityPlayer)player;
 			entityplayer.addStat(StatList.getObjectBreakStats(itemstack.getItem()));
 		}
+	}
+	
+	default CAPIWorldData getWorldData(ItemStack itemstack) {
 	}
 }

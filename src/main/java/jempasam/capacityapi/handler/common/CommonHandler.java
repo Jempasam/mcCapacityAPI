@@ -17,7 +17,6 @@ public class CommonHandler {
 		CAPIItems.init();
 		CAPIBlocks.init();
     	CAPIRecipes.registerRecipes();
-    	System.out.println("LE CHIEN EST VERT");
     	
 		MinecraftForge.EVENT_BUS.register(new RegisterEventHandler(mod));
 		MinecraftForge.EVENT_BUS.register(new EntityCommonHandler(mod));

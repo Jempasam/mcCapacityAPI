@@ -5,6 +5,7 @@ import jempasam.capacityapi.capability.SimpleCapacityOwner;
 import jempasam.capacityapi.register.CAPIRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.event.world.WorldEvent;
 
 public class ServerHandler {
 	
@@ -16,10 +17,10 @@ public class ServerHandler {
 	
 	public ServerHandler(String mODID) {
 		super();
-		CAPIRegistry.loadAll();
 		CapabilityManager.INSTANCE.register(ICapacityOwner.class, ICapacityOwner.STORAGE, SimpleCapacityOwner::new);
 		MinecraftForge.EVENT_BUS.register(new ServerAlterEventHandler(MODID));
 		MinecraftForge.EVENT_BUS.register(new MobSpawnHandler());
+		MinecraftForge.EVENT_BUS.register(new WorldDataEventHandler(MODID));
     }
 
 }

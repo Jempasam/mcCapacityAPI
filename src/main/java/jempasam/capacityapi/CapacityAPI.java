@@ -1,21 +1,25 @@
 package jempasam.capacityapi;
 
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-
 import org.apache.logging.log4j.Logger;
 
+import electroblob.wizardry.spell.Satiety;
+import electroblob.wizardry.spell.Spell;
 import jempasam.capacityapi.command.CapacityCommands;
 import jempasam.capacityapi.effect.CapacityEffect;
 import jempasam.capacityapi.handler.client.ClientHandler;
 import jempasam.capacityapi.handler.common.CommonHandler;
 import jempasam.capacityapi.handler.server.ServerHandler;
+import jempasam.capacityapi.register.CAPIRegistry;
 
 
 
@@ -33,10 +37,15 @@ public class CapacityAPI
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+    	WorldServer world;
     	logger = event.getModLog();
     	MinecraftForge.EVENT_BUS.register(new CommonHandler(this));
     	if(event.getSide().isClient())MinecraftForge.EVENT_BUS.register(new ClientHandler(this));
     	MinecraftForge.EVENT_BUS.register(new ServerHandler(MODID));
+    }
+    
+    public void init(FMLInitializationEvent event) {
+    	CAPIRegistry.loadAll();
     }
     
     @EventHandler
@@ -49,6 +58,8 @@ public class CapacityAPI
     	event.registerServerCommand(CapacityCommands.buildCommandCapacity());
     	event.registerServerCommand(CapacityCommands.buildCommandAlter());
     }
+    
+    
     
    
 }

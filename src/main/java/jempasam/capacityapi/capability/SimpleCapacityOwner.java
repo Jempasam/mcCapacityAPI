@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jempasam.capacityapi.capacity.Capacity;
 import jempasam.capacityapi.material.MagicMaterial;
+import jempasam.capacityapi.register.CAPIWorldData;
 import jempasam.capacityapi.utils.Selector;
 import jempasam.capacityapi.utils.SelectorList;
 import net.minecraft.world.World;
@@ -18,16 +19,17 @@ public class SimpleCapacityOwner implements ICapacityOwner{
 	private int mana;
 	private String alterName;
 	private long lastActionMade;
+	private CAPIWorldData data;
 	
 	
-	
-	public SimpleCapacityOwner() {
-		categories=new ArrayList<>();
-		capacitiesSelector=new SelectorList<>(new ArrayList<>());
-		materialsSelector=new SelectorList<>(new ArrayList<>());
-		mana=500;
-		alterName="";
-		lastActionMade=0;
+	public SimpleCapacityOwner(CAPIWorldData data) {
+		this.categories=new ArrayList<>();
+		this.capacitiesSelector=new SelectorList<>(new ArrayList<>());
+		this.materialsSelector=new SelectorList<>(new ArrayList<>());
+		this.mana=500;
+		this.alterName="";
+		this.lastActionMade=0;
+		this.data=data;
 	}
 
 
@@ -48,4 +50,6 @@ public class SimpleCapacityOwner implements ICapacityOwner{
 	
 	@Override public String getAlterName() { return alterName; }
 	@Override public void setAlterName(String name) { this.alterName=name; }
+	
+	@Override public CAPIWorldData getDatas() { return data; }
 }
